@@ -21,4 +21,19 @@ class Documento extends Model
     {
         return $this->belongsTo(Orden::class);
     }
+    public function getUrlAttribute()
+    {
+        return $this->path ? Storage::url($this->path) : null;
+    }
+
+    public function getExisteAttribute()
+    {
+        return $this->path && Storage::disk('public')->exists($this->path);
+    }
+
+    public function getNombreArchivoAttribute()
+    {
+        return $this->path ? basename($this->path) : null;
+    }
+
 }

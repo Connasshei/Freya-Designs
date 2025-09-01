@@ -97,9 +97,7 @@
                 
 
                 
-                <p class="mb-1">
-                    <a href="{{ route('password.request') }}">¿Olvidaste tu contraseña0?</a>
-                </p>
+                
                 <p class="mb-0">
                     <a href="{{ route('register') }}" class="text-center">Registrar una nueva cuenta</a>
                 </p>

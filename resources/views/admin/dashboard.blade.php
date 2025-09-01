@@ -35,7 +35,7 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>User ID</th>
+                                    <th>Cliente</th>
                                     <th>Precio</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
@@ -45,12 +45,17 @@
                                 @foreach($ordenesPendientes as $orden)
                                 <tr>
                                     <td>{{ $orden->id }}</td>
-                                    <td>{{ $orden->user_id }}</td>
-                                    <td>${{ number_format($orden->precio_total, 2) }}</td>
+                                    <td>{{ $orden->user->name }}</td>
+                                    <td>Bs{{ number_format($orden->precio_total, 2) }}</td>
                                     <td>
-                                        <span class="badge bg-warning">{{ $orden->estado }}</span>
+                                        <span class="badge bg-warning">{{ ucfirst($orden->estado) }}</span>
                                     </td>
                                     <td>
+                                        <a href="{{ route('admin.orders.preview', $orden->id) }}" 
+                                            class="btn btn-info btn-sm mb-1">
+                                            <i class="fas fa-eye"></i> Vista Previa
+                                        </a>
+                                        
                                         <form action="{{ route('admin.ordens.update-status', $orden) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PUT')
@@ -65,7 +70,7 @@
                                         </form>
                                     </td>
                                 </tr>
-                                @endforeach
+                                @endforeach 
                             </tbody>
                         </table>
                     </div>
@@ -87,7 +92,7 @@
                             <thead>
                                 <tr>
                                     <th>Material</th>
-                                    <th>Precio/cm�</th>
+                                    <th>Precio/cm³</th>
                                     <th>Stock Disponible</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -97,7 +102,7 @@
                                 <tr>
                                     <td>{{ $material->nombre }}</td>
                                     <td>Bs{{ number_format($material->precio_por_kg, 2) }}</td>
-                                    <td>{{ $material->cantidad_stock }} m�</td>
+                                    <td>{{ $material->cantidad_stock }} m³</td>
                                     <td>
                                         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStockModal{{ $material->id }}">
                                             Editar Stock
@@ -153,6 +158,9 @@
     </div>
 </div>
 @endforeach
+
+<!-- Font Awesome para iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <!-- Incluir Bootstrap JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

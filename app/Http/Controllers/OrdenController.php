@@ -13,7 +13,7 @@ class OrdenController extends Controller
 {
     public function clientDashboard()
     {
-        $ordens = Orden::where('user_id', Auth::id())->with(['items.material', 'documentos'])->get();
+        $ordens = Orden::where('user_id', Auth::id())->with(['items.material'])->get();
         return view('client.dashboard', compact('ordens'));
     }
 
@@ -23,61 +23,76 @@ class OrdenController extends Controller
         return view('client.crear-orden', compact('materiales'));
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'material_id' => 'required|exists:materials,id',
-            'cantidad' => 'required|integer|min:1',
-            'documento_diseno' => 'required|file|mimes:dxf,svg,dwg,ai,pdf|max:10240'
-        ]);
 
-        // Calcular precio
-        $material = Material::find($request->material_id);
-        $precioBase = $material->precio_por_kg * 0.1; // Precio base por unidad
-        
-        // Procesar archivo
-        $precio = 0;
-        $archivo = null;
-        $nombreDocumento = null;
-        $path = null;
-        $tiempoCorte = 0;
+public function store(Request $request)
+{
+    $request->validate([
+        'material_id' => 'required|exists:materials,id',
+        'cantidad' => 'required|integer|min:1',
+        'documento_diseno' => 'required|file|mimes:pdf,jpg,jpeg,png,gif,svg,dxf,dwg,ai',
+    ]);
 
-        if ($request->hasFile('documento_diseno')) {
-            $archivo = $request->file('documento_diseno');
-            $nombreDocumento = time() . '_' . $archivo->getClientOriginalName();
-            $path = $archivo->storeAs('disenos', $nombreDocumento, 'public');
-            
-            // Calcular tiempo de corte 
-            $tamanoArchivo = $archivo->getSize(); // en bytes
-            $tiempoCorte = $tamanoArchivo / 1000; // Ejemplo: 0.01 min por cada 1000 bytes
-            
-            $precio = $precioBase * $request->cantidad * (1 + $tiempoCorte / 10);
-        }
+    // Guardar archivo
+    $rutaArchivo = $request->file('documento_diseno')->store('disenos', 'public');
 
-        // Crear pedido
-        $orden = Orden::create([
-            'user_id' => Auth::id(),
-            'estado' => 'pendiente',
-            'precio_total' => $precio
-        ]);
+    // Calcular precio total
+    $material = Material::find($request->material_id);
+    $precio_total = $material->precio_por_kg * $request->cantidad;
 
-        // Crear item del pedido
-        $orden->items()->create([
-            'material_id' => $request->material_id,
-            'cantidad' => $request->cantidad,
-            'precio' => $precio
-        ]);
+    Orden::create([
+        'user_id' => auth()->id(),
+        'material_id' => $request->material_id,
+        'precio_total' => $precio_total,
+        'documento_diseno' => $rutaArchivo,
+        'consideraciones' => $request->consideraciones,
+        // 'estado' => 'pendiente', // por defecto
+    ]);
 
-        // Guardar archivo
-        if ($archivo) {
-            $orden->documentos()->create([
-                'nombre_documento' => $nombreDocumento,
-                'nombre_original' => $archivo->getClientOriginalName(),
-                'path' => $path,
-                'tiempo_corte' => $tiempoCorte
-            ]);
-        }
+    return redirect()->route('client.dashboard')->with('success', 'Orden creada correctamente.');
+}
 
-        return redirect()->route('client.dashboard')->with('success', 'Pedido enviado correctamente.');
+public function previewAdmin($id)
+{
+    $orden = Orden::with(['user', 'material', 'items.material'])->findOrFail($id);
+    return view('orders.preview-admin', compact('orden'));
+}
+
+public function previewCliente($id)
+{
+    $orden = Orden::with(['user', 'material', 'items.material'])
+        ->where('id', $id)
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+    return view('orders.preview-cliente', compact('orden'));
+}
+
+public function downloadDiseno($id)
+{
+    $orden = Orden::findOrFail($id);
+
+    // Permitir solo al dueño o admin
+    $user = auth()->user();
+    if (!$user->isAdmin() && $orden->user_id !== $user->id) {
+        abort(403, 'No tienes permisos para descargar este archivo');
     }
+
+    $filePath = storage_path('app/public/' . $orden->documento_diseno);
+
+    if (!file_exists($filePath)) {
+        abort(404, 'El archivo no se encontró en el servidor');
+    }
+
+    $nombre = basename($orden->documento_diseno);
+
+    return response()->download($filePath, $nombre);
+}
+
+public function updateConsideraciones(Request $request, $id)
+{
+    $orden = Orden::findOrFail($id);
+    $orden->consideraciones = $request->input('consideraciones');
+    $orden->save();
+
+    return redirect()->back()->with('success', 'Consideraciones actualizadas correctamente.');
+}
 }

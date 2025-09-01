@@ -11,16 +11,27 @@ class Orden extends Model
 
     protected $fillable = [
         'user_id',
+        'material_id',
+        'cantidad',          
+        'documento_diseno',  
         'estado',
         'precio_total',
-        'consideraciones'
+        'consideraciones',
+        'confirmada_por_cliente'
     ];
-
+    protected $casts = [
+        'confirmada_por_cliente' => 'boolean',
+        'precio_total' => 'decimal:2',
+        'cantidad' => 'integer'
+    ];
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
+    public function material() // ← NUEVA RELACIÓN IMPORTANTE
+    {
+        return $this->belongsTo(Material::class);
+    }
     public function items()
     {
         return $this->hasMany(OrdenItem::class, 'orden_id');

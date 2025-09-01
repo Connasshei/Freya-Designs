@@ -11,11 +11,11 @@ class AdminController extends Controller
     //
     public function dashboard()
     {
-        //seleccionar los elementos de las ordenes que están con estado = pendiente, esto para mostrarlas a los administradores
-        $ordenesPendientes = Orden::where('estado', 'pendiente')        
-            ->get(['id', 'user_id', 'precio_total', 'estado']);
         
-        //seleccionar los materiales disponibles, esto para mostrarlos en el dashboard
+        $ordenesPendientes = Orden::where('estado', 'pendiente')
+        ->with(['user']) // Cargar relación user
+        ->get(['id', 'user_id', 'precio_total', 'estado', 'confirmada_por_cliente']);
+        
         $materials = Material::get(['id', 'nombre', 'precio_por_kg', 'cantidad_stock']);
         
         return view('admin.dashboard', compact('ordenesPendientes', 'materials'));
@@ -48,4 +48,5 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Stock actualizado correctamente.');
     }
+
 }
