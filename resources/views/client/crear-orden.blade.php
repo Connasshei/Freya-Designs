@@ -115,7 +115,7 @@
                                     </div>
                                 </div>
 
-                                
+                                <input type="hidden" id="tiempo_corte" name="tiempo_corte" value="0">
                                 <div id="infoArchivo" class="mt-3" style="display: none;">
                                     <div class="card">
                                         <div class="card-body">
@@ -180,7 +180,7 @@ function calcularPrecio() {
     const COSTO_POR_MINUTO = 4.30; // Cambia este valor si tu costo por minuto es diferente
     const TIEMPO_POSICIONAMIENTO_POR_COPIA = 4; // minutos
     const COSTO_CONSUMIBLES_POR_M2 = 5.00; 
-
+    
     // Material
     const materialSelect = document.getElementById('material_id');
     let costoMaterial = 0;
@@ -207,7 +207,7 @@ function calcularPrecio() {
 
     // Tiempo de corte (minutos)
     const tiempoCorte = (longitudTotal / 30) + (TIEMPO_POSICIONAMIENTO_POR_COPIA * cantidad);
-
+    document.getElementById('tiempo_corte').value = tiempoCorte.toFixed(2);
     // Costo total
     const costo = (tiempoCorte * COSTO_POR_MINUTO) + (areaTotal * costoMaterial) + consumibles;
 
