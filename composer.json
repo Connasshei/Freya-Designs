@@ -9,6 +9,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^2.7",
         "jeroennoten/laravel-adminlte": "^3.15",
+        "ext-pdo_mysql": "*",
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
