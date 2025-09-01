@@ -47,6 +47,7 @@ public function store(Request $request)
         'consideraciones' => $request->consideraciones,
         'ancho' => $request->ancho,
         'alto' => $request->alto,
+        'tiempo_corte' => $request->tiempo_corte,
         // 'estado' => 'pendiente', // por defecto
     ]);
 
