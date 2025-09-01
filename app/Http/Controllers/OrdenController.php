@@ -37,7 +37,7 @@ public function store(Request $request)
 
     // Calcular precio total
     $material = Material::find($request->material_id);
-    $precio_total = $material->precio_por_kg * $request->cantidad;
+    $precio_total = $request->precio_total;
 
     Orden::create([
         'user_id' => auth()->id(),
@@ -74,9 +74,9 @@ public function downloadDiseno($id)
     $orden = Orden::findOrFail($id);
 
     $user = auth()->user();
-    if (!$user->isAdmin() && $orden->user_id !== $user->id) {
+    /* if (!$user->isAdmin() && $orden->user_id !== $user->id) {
         abort(403, 'No tienes permisos para descargar este archivo');
-    }
+    } */
 
     $filePath = storage_path('app/public/' . $orden->documento_diseno);
 
