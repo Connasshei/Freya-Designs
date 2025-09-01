@@ -14,13 +14,13 @@
                     <form action="{{ route('client.ordens.store') }}" method="POST" enctype="multipart/form-data" id="ordenForm">
                         @csrf
 
-                        <div class="row">
+                        <div class="row">   
                             
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="material_id" class="form-label">Material *</label>
+                                    <label for="material_id" class="form-label">Material</label>
                                     <select class="form-select" id="material_id" name="material_id" required 
-                                            onchange="calcularPrecio()">
+                                            onchange="calcularPrecio()" oninput="calcularPrecio()">
                                         <option value="">Seleccionar material...</option>
                                         @foreach($materiales as $material)
                                             <option value="{{ $material->id }}" data-precio="{{ $material->precio_por_kg }}">
@@ -44,7 +44,19 @@
                                             required onchange="previewFile(this)">
                                     <div class="form-text">Formatos aceptados: PDF, JPG, PNG, GIF, SVG, DXF, DWG, AI</div>
                                 </div>
-
+                                <div class="mb-3">
+                                    <label for="ancho" class="form-label">Ancho del diseño (mm) *</label>
+                                    <input type="number" class="form-control" id="ancho" name="ancho" min="1" required oninput="calcularPrecio()">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="alto" class="form-label">Alto del diseño (mm) *</label>
+                                    <input type="number" class="form-control" id="alto" name="alto" min="1" required oninput="calcularPrecio()">
+                                </div>
+                                <div class="mb-3">
+                                    
+                                    <input type="hidden" id="consumibles" name="consumibles" value="0">
+                                    
+                                </div>
                                 <div class="card mt-4">
                                     <div class="card-header bg-success text-white">
                                         <h6 class="card-title mb-0">
@@ -65,12 +77,6 @@
                                                 <hr>
                                                 <p class="mb-0 fs-5 fw-bold text-success" id="precioTotal">Bs0.00</p>
                                             </div>
-                                        </div>
-                                        <div class="mt-2">
-                                            <small class="text-muted">
-                                                <i class="fas fa-info-circle"></i> 
-                                                Precio base × Cantidad = Total estimado
-                                            </small>
                                         </div>
                                     </div>
                                 </div>
@@ -126,7 +132,7 @@
 
                         <div class="text-center mt-4">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-paper-plane"></i> Enviar Orden - <span id="precioBoton">Bs0.00</span>
+                                Enviar Orden - <span id="precioBoton">Bs0.00</span>
                             </button>
                             <a href="{{ route('client.dashboard') }}" class="btn btn-secondary btn-lg">
                                 <i class="fas fa-times"></i> Cancelar
@@ -170,30 +176,50 @@
 // Función SIMPLIFICADA para calcular precio
 
 function calcularPrecio() {
-    // Obtener valores actuales
+    // Constantes
+    const COSTO_POR_MINUTO = 4.30; // Cambia este valor si tu costo por minuto es diferente
+    const TIEMPO_POSICIONAMIENTO_POR_COPIA = 4; // minutos
+    const COSTO_CONSUMIBLES_POR_M2 = 5.00; 
+
+    // Material
     const materialSelect = document.getElementById('material_id');
-    const cantidadInput = document.getElementById('cantidad');
-    
-    // Precio base del material
-    let precioPorKg = 0;
+    let costoMaterial = 0;
     if (materialSelect.value) {
         const selectedOption = materialSelect.options[materialSelect.selectedIndex];
-        precioPorKg = parseFloat(selectedOption.getAttribute('data-precio'));
+        costoMaterial = parseFloat(selectedOption.getAttribute('data-precio')) || 0;
     }
-    
-    // Cantidad
-    const cantidad = cantidadInput.value ? parseInt(cantidadInput.value) : 0;
-    
-    // Calcular precio total (solo precio base × cantidad)
-    const precioTotal = precioPorKg * cantidad;
-    
-    // Actualizar la interfaz
-    document.getElementById('precioBase').textContent = `Bs${precioPorKg.toFixed(2)}`;
-    document.getElementById('precioCantidad').textContent = `${cantidad} unidades`;
-    document.getElementById('precioTotal').textContent = `Bs${precioTotal.toFixed(2)}`;
-    document.getElementById('precioBoton').textContent = `Bs${precioTotal.toFixed(2)}`;
-    document.getElementById('precio_total').value = precioTotal.toFixed(2);
 
+    // Cantidad
+    const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
+
+    // Dimensiones
+    const ancho = parseFloat(document.getElementById('ancho').value) || 0;
+    const alto = parseFloat(document.getElementById('alto').value) || 0;
+
+    // Área total (m²)
+    const areaTotal = ((ancho * alto) / 1e6) * cantidad; // mm² a m²
+
+    // Consumibles 
+    const consumibles = areaTotal * COSTO_CONSUMIBLES_POR_M2;
+
+    // Longitud total (mm) = perímetro estimado de la pieza × cantidad
+    const longitudTotal = 2 * (ancho + alto) * cantidad;
+
+    // Tiempo de corte (minutos)
+    const tiempoCorte = (longitudTotal / 30) + (TIEMPO_POSICIONAMIENTO_POR_COPIA * cantidad);
+
+    // Costo total
+    const costo = (tiempoCorte * COSTO_POR_MINUTO) + (areaTotal * costoMaterial) + consumibles;
+
+    // Actualizar la interfaz
+    document.getElementById('precioBase').textContent = `Bs${costoMaterial.toFixed(2)}`;
+    document.getElementById('precioCantidad').textContent = `${cantidad} unidades`;
+    document.getElementById('precioTotal').textContent = `Bs${costo.toFixed(2)}`;
+    document.getElementById('precioBoton').textContent = `Bs${costo.toFixed(2)}`;
+    document.getElementById('precio_total').value = costo.toFixed(2);
+
+    // Actualiza el campo oculto de consumibles
+    document.getElementById('consumibles').value = consumibles.toFixed(2);
 }
 
 // Función de vista previa (sin cambios)
@@ -307,10 +333,16 @@ document.addEventListener('DOMContentLoaded', function() {
         previewFile(fileInput);
     }
 });
-
-document.getElementById('ordenForm').addEventListener('submit', function(e) {
-    const precioTotal = document.getElementById('precioTotal').textContent.replace('Bs', '');
-    document.getElementById('precio_total').value = precioTotal;
+['material_id', 'cantidad', 'ancho', 'alto'].forEach(function(id) {
+    document.getElementById(id).addEventListener('input', calcularPrecio);
+    document.getElementById(id).addEventListener('change', calcularPrecio);
 });
+
+// Forzar el cálculo antes de enviar el formulario
+document.getElementById('ordenForm').addEventListener('submit', function(e) {
+    calcularPrecio(); // Asegura que el precio esté actualizado
+});
+
 </script>
+
 @endsection

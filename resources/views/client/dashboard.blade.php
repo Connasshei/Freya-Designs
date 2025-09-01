@@ -30,23 +30,39 @@
         color: black;
     }
 </style>
-<header class="bg-primary text-black py-4 mb-4 shadow-sm">
-    <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between">
-        <h1 class="mb-2 mb-md-0" style="font-weight: 700; letter-spacing: 1px;">
-            <i class="fas fa-industry me-2"></i> FREYA DESIGNS
-        </h1>
-        <nav class="d-flex align-items-center">
-            <a href="#empresa" class="nav-link-custom">Sobre Nosotros</a>
-            <a href="#pedidos" class="nav-link-custom">Mis Pedidos</a>
-            <a href="#contacto" class="nav-link-custom">Contacto</a>
-            <form action="{{ route('logout') }}" method="POST" class="d-inline ms-3">
-                @csrf
-                <button type="submit" class="btn btn-danger btn-sm">
-                    Cerrar sesión
-                </button>
-            </form>
-        </nav>
-    </div>
+<header class="bg-primary text-black mb-4 shadow-sm">
+    <nav class="navbar navbar-expand-md navbar-light bg-transparent">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+                <i class="fas fa-industry me-2"></i>
+                FREYA DESIGNS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav ms-auto mb-2 mb-md-0 align-items-md-center">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="#empresa">Sobre Nosotros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="#pedidos">Mis Pedidos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="#contacto">Contacto</a>
+                    </li>
+                    <li class="nav-item ms-md-3">
+                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-danger btn-sm mt-2 mt-md-0">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 </header>
 
 <!-- Sección principal: Sobre la empresa -->
@@ -59,11 +75,11 @@
             <ul>
                 <li>Impresión y corte de materiales avanzados</li>
                 
-                <li>Entrega rápida y personalizada</li>
+                <li>Cotización automática</li>
             </ul>
         </div>
         <div class="col-md-5 text-center">
-            <img src="{{ asset('img/empresa-ilustracion.svg') }}" alt="Empresa" class="img-fluid" style="max-height: 220px;">
+            <img src="{{ asset('img/freya desing logo 2.png') }}" alt="Empresa" class="img-fluid" style="max-height: 220px;">
         </div>
     </div>
 </section>

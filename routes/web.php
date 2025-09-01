@@ -60,3 +60,7 @@ Route::get('/ordens/{id}/descargar-diseno', [OrdenController::class, 'downloadDi
 
 // Actualizar consideraciones (admin)
 Route::put('/admin/ordens/{id}/consideraciones', [OrdenController::class, 'updateConsideraciones'])->name('admin.ordens.update-consideraciones');
+
+// Rutas para materiales (admin)
+Route::post('/admin/materials', [AdminController::class, 'storeMaterial'])->name('admin.materials.store');
+Route::put('/admin/materials/{material}', [AdminController::class, 'updateMaterial'])->name('admin.materials.update');

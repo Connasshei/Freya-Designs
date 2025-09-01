@@ -45,6 +45,8 @@ public function store(Request $request)
         'precio_total' => $precio_total,
         'documento_diseno' => $rutaArchivo,
         'consideraciones' => $request->consideraciones,
+        'ancho' => $request->ancho,
+        'alto' => $request->alto,
         // 'estado' => 'pendiente', // por defecto
     ]);
 
@@ -70,7 +72,6 @@ public function downloadDiseno($id)
 {
     $orden = Orden::findOrFail($id);
 
-    // Permitir solo al dueño o admin
     $user = auth()->user();
     if (!$user->isAdmin() && $orden->user_id !== $user->id) {
         abort(403, 'No tienes permisos para descargar este archivo');

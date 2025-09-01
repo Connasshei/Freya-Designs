@@ -21,6 +21,9 @@ return new class extends Migration
             $table->decimal('precio_total', 10, 2);
             $table->string('documento_diseno'); // Ruta del archivo
             $table->text('consideraciones')->nullable();
+            $table->integer('tiempo_corte');
+            $table->float('ancho');
+            $table->float('alto');
             $table->timestamps();
         });
     }

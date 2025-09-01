@@ -38,6 +38,7 @@
                     @if($orden->cantidad)
                         <p><strong>Cantidad:</strong> {{ $orden->cantidad }}</p>
                     @endif
+                    <p><strong>Dimensiones:</strong> {{ $orden->ancho }} mm x {{ $orden->alto }} mm</p>
                 </div>
             </div>
 
@@ -133,13 +134,7 @@
                 </button>
             </form>
 
-            @if($orden->consideraciones)
-                <div class="card card-body">
-                    <p>{{ $orden->consideraciones }}</p>
-                </div>
-            @else
-                <p class="text-muted">No hay Comentarios para esta orden.</p>
-            @endif
+            
         </div>
     </div>
 </div>

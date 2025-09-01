@@ -17,7 +17,10 @@ class Orden extends Model
         'estado',
         'precio_total',
         'consideraciones',
-        'confirmada_por_cliente'
+        'confirmada_por_cliente',
+        'tiempo_corte',
+        'ancho',
+        'alto',
     ];
     protected $casts = [
         'confirmada_por_cliente' => 'boolean',
