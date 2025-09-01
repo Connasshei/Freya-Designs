@@ -14,7 +14,7 @@ class AdminController extends Controller
         
         $ordenesPendientes = Orden::where('estado', 'pendiente')
         ->with(['user']) // Cargar relación user
-        ->get(['id', 'user_id', 'precio_total', 'estado', 'confirmada_por_cliente']);
+        ->get(['id', 'user_id', 'precio_total', 'estado']);
         
         $materials = Material::get(['id', 'nombre', 'precio_por_kg', 'cantidad_stock']);
         
